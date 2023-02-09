@@ -7,7 +7,7 @@ const initialState = {
     password: '',
 }
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
     const [state, setState] = useState(initialState)
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
 
@@ -26,7 +26,7 @@ export default function LoginScreen() {
     return (
         <TouchableWithoutFeedback onPress={keyboardHidden}>
             <View style={styles.container}>
-                <ImageBackground source={require('../assets/image/photo-bg.jpg')} style={styles.image}>
+                <ImageBackground source={require('../../assets/image/photo-bg.jpg')} style={styles.image}>
                     <View style={{
                         ...Platform.select({
                             ios: {
@@ -54,7 +54,7 @@ export default function LoginScreen() {
                                     setState((prev) => ({...prev, email: value}))
                                 }}
                             />
-                            <View>
+                            <View style={{position: 'relative'}}>
                                 <TextInput
                                     value={state.password}
                                     style={styles.input}
@@ -70,7 +70,7 @@ export default function LoginScreen() {
                             <TouchableOpacity style={styles.btn} onPress={submitLog}>
                                 <Text style={styles.buttonText}>Войти</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
                                 <Text style={styles.login}>Нет аккаунта? Зарегистрироваться</Text>
                             </TouchableOpacity>
                     </KeyboardAvoidingView>
