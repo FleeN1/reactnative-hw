@@ -53,7 +53,7 @@ export const useRoute = (isAuth) => {
         component={CreatePostsScreen}
         options={{
           tabBarShowLabel: false,
-          title: 'Створити публікацію',
+          title: 'Создать публикацию',
           headerTitleStyle: {
             color: '#212121',
             fontFamily: 'Roboto-Medium',
@@ -66,7 +66,6 @@ export const useRoute = (isAuth) => {
             <AntDesign name="plus" size={13} color="#FFFFFF" />
           ),
           tabBarIconStyle: {
-            display: 'block',
             width: 70,
             height: 40,
             backgroundColor: '#FF6C00',

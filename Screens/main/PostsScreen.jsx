@@ -16,7 +16,7 @@ export default function PostsScreen() {
         name="Home"
         component={Home}
         options={{
-          title: 'Публікації',
+          title: 'Публикации',
           headerTitleStyle: {
             color: '#212121',
             fontFamily: 'Roboto-Medium',

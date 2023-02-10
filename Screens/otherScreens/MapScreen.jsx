@@ -3,7 +3,6 @@ import { Text, View, StyleSheet } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 
 export default function MapScreen({ route }) {
-  console.log('route.params', route.params)
 
   return (
     <View style={styles.container}>

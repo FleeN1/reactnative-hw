@@ -12,14 +12,12 @@ import { Feather } from '@expo/vector-icons'
 
 export default function Home({ route, navigation }) {
   const [posts, setPosts] = useState([])
-  console.log('route.params', route.params)
 
   useEffect(() => {
     if (route.params) {
       setPosts((prev) => [...prev, route.params])
     }
   }, [route.params])
-  console.log('posts', posts)
 
   return (
     <View style={styles.container}>

@@ -12,18 +12,25 @@ import {
 } from 'react-native'
 import { Camera, CameraType } from 'expo-camera'
 import { FontAwesome } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import * as Location from 'expo-location'
 
 export default function CreatePostsScreen({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false)
   const [camera, setCamera] = useState(null)
   const [photo, setPhoto] = useState('')
+  const [place, setPlace] = useState('')
   const [title, setTitle] = useState('')
   const [location, setLocation] = useState(null)
   const [errorMsg, setErrorMsg] = useState(null)
 
-  useEffect(() => {
-    ;(async () => {
+  const takePhoto = async () => {
+    const photo = await camera.takePictureAsync()
+    setPhoto(photo.uri)
+  }
+
+  const sendData = () => {
+    const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync()
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied')
@@ -32,16 +39,10 @@ export default function CreatePostsScreen({ navigation }) {
 
       let location = await Location.getCurrentPositionAsync({})
       setLocation(location)
-    })()
-  }, [])
+    }
 
-  const takePhoto = async () => {
-    const photo = await camera.takePictureAsync()
-    setPhoto(photo.uri)
-  }
-
-  const sendData = () => {
-    navigation.navigate('Home', { photo, title, location })
+    getLocation()
+    navigation.navigate('Home', { photo, title, location, place })
   }
 
   const keyboardHide = () => {
@@ -64,20 +65,16 @@ export default function CreatePostsScreen({ navigation }) {
             </TouchableOpacity>
           )}
           {photo && (
-            <TouchableOpacity
-              onPress={() => {
-                setPhoto('')
-              }}
-              style={{
-                width: 60,
+            <TouchableOpacity onPress={() => { setPhoto('') }} style={{
+              width: 60,
                 height: 60,
                 borderRadius: 50,
                 backgroundColor: 'rgba(255, 255, 255, 0.3)',
                 alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              justifyContent: 'center',
+            }}
             >
-              <FontAwesome name="camera" size={24} color="#FFFFFF" />
+              <FontAwesome name="camera" size={24} color="#BDBDBD" />
             </TouchableOpacity>
           )}
         </Camera>
@@ -96,6 +93,20 @@ export default function CreatePostsScreen({ navigation }) {
               setIsShowKeyboard(true)
             }}
           />
+          <TextInput
+            style={styles.place}
+            placeholder={'Локация'}
+            value={place}
+            onChangeText={(value) => {
+              setPlace((prev) => ({ ...prev, value }))
+            }}
+            onFocus={() => {
+              setIsShowKeyboard(true)
+            }}
+          />
+          <View style={{ position: 'absolute', top: 82, left: 16 }}>
+            <Feather name="map-pin" size={24} color="#BDBDBD" />
+          </View>
         </View>
         <TouchableOpacity style={styles.btnSubmit} onPress={sendData}>
           <Text style={styles.btnText}>Опубликовать</Text>
@@ -166,6 +177,17 @@ const styles = StyleSheet.create({
   title: {
     paddingBottom: 16,
     paddingTop: 16,
+    marginHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8E8E8',
+    fontSize: 16,
+    lineHeight: 19,
+    color: '#212121',
+  },
+  place: {
+    paddingBottom: 16,
+    paddingTop: 19,
+    paddingLeft: 28,
     marginHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#E8E8E8',
