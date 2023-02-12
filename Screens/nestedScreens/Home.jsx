@@ -43,15 +43,19 @@ export default function Home({ route, navigation }) {
                 <Feather name="message-circle" size={24} color="#BDBDBD" />
                 <Text style={styles.commentsCount}>0</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('Map', {
-                    location: item.location,
-                  })
-                }
-              >
-                <Ionicons name="location-outline" size={24} color="#BDBDBD" />
-              </TouchableOpacity>
+              <View>
+                <TouchableOpacity
+                  style={{ display: 'flex', flexDirection: 'row' }}
+                  onPress={() =>
+                    navigation.navigate('Map', {
+                      location: item.location,
+                    })
+                  }
+                >
+                  <Feather name="map-pin" size={24} color="#BDBDBD" />
+                  <Text style={styles.place}>{item.place.value}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </>
         )}

@@ -1,9 +1,9 @@
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 
-import Home from '../otherScreens/Home'
-import CommentsScreen from '../otherScreens/CommentsScreen'
-import MapScreen from '../otherScreens/MapScreen'
+import Home from '../nestedScreens/Home'
+import CommentsScreen from '../nestedScreens/CommentsScreen'
+import MapScreen from '../nestedScreens/MapScreen'
 import { TouchableOpacity } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 

@@ -68,9 +68,11 @@ export const useRoute = (isAuth) => {
           tabBarIconStyle: {
             width: 70,
             height: 40,
+            display: 'flex',
             backgroundColor: '#FF6C00',
             borderRadius: 20,
-            marginTop: 9,
+            marginTop: 8,
+            marginBottom: 8,
           },
         }}
       />

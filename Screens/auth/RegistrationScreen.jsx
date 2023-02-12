@@ -14,6 +14,7 @@ export default function RegistrationScreen({ navigation }) {
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
     const [camera, setCamera] = useState()
     const [photo, setPhoto] = useState('');
+    const [isPasswordSecure, setIsPasswordSecure] = useState(true)
 
 
     const keyboardHidden = () => {
@@ -36,25 +37,25 @@ export default function RegistrationScreen({ navigation }) {
 
     return (
         <TouchableWithoutFeedback onPress={keyboardHidden}>
-        <View style={styles.container}>
-            <ImageBackground source={require('../../assets/image/photo-bg.jpg')} style={styles.image}>
-                <View style={{
-                    ...Platform.select({
-                        ios: {
-                            ...styles.form,
-                            marginBottom: isShowKeyboard ? 140 : 0,
-                        },
-                        android: {
-                            ...styles.form,
-                        },
-                    }),
-                }}
+            <View style={styles.container}>
+                <ImageBackground source={require('../../assets/image/photo-bg.jpg')} style={styles.image}>
+                    <View style={{
+                        ...Platform.select({
+                            ios: {
+                                ...styles.form,
+                                marginBottom: isShowKeyboard ? 140 : 0,
+                            },
+                            android: {
+                                ...styles.form,
+                            },
+                        }),
+                    }}
                     >
                         <Camera style={styles.camera} ref={setCamera} type={CameraType.front}>
                             {photo && (
                                 <>
                                     <View style={styles.takePhotoContainer}>
-                                        <Image source={{uri: photo}} style={styles.photo} />
+                                        <Image source={{ uri: photo }} style={styles.photo} />
                                     </View>
                                 </>
                             )}
@@ -76,8 +77,8 @@ export default function RegistrationScreen({ navigation }) {
                                         borderWidth: 1,
                                         justifyContent: 'center',
                                         alignItems: 'center',
+                                    }
                                 }
-                            }
                             >
                                 <AntDesign name="close" size={20} color='#BDBDBD' />
                             </TouchableOpacity>
@@ -88,12 +89,12 @@ export default function RegistrationScreen({ navigation }) {
                                 bottom: 510,
                                 right: 136,
                             }}
-                            onPress={takePhoto}
+                                onPress={takePhoto}
                             >
                                 <AntDesign name='pluscircleo' size={25} color='#FF6C00' />
                             </TouchableOpacity>
                         )}
-                <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : 'height'}>
+                        <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : 'height'}>
                             <Text style={styles.title}>Регистрация</Text>
                             <TextInput
                                 value={state.login}
@@ -103,7 +104,7 @@ export default function RegistrationScreen({ navigation }) {
                                     setIsShowKeyboard(true)
                                 }}
                                 onChangeText={(value) => {
-                                    setState((prev) => ({ ...prev, login: value}))
+                                    setState((prev) => ({ ...prev, login: value }))
                                 }}
                             />
                             <TextInput
@@ -114,7 +115,7 @@ export default function RegistrationScreen({ navigation }) {
                                     setIsShowKeyboard(true)
                                 }}
                                 onChangeText={(value) => {
-                                    setState((prev) => ({ ...prev, email: value}))
+                                    setState((prev) => ({ ...prev, email: value }))
                                 }}
                             />
                             <View>
@@ -129,6 +130,14 @@ export default function RegistrationScreen({ navigation }) {
                                         setState((prev) => ({ ...prev, password: value }))
                                     }}
                                 />
+                                                <Text
+                  onPress={() => {
+                    setIsPasswordSecure(!isPasswordSecure)
+                  }}
+                  style={styles.showPassword}
+                >
+                  {isPasswordSecure ? 'Показати' : 'Приховати'}
+                </Text>
                             </View>
                             <TouchableOpacity style={styles.btn} onPress={submitReg}>
                                 <Text style={styles.buttonText}>Зарегистрироваться</Text>
@@ -136,13 +145,13 @@ export default function RegistrationScreen({ navigation }) {
                             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                                 <Text style={styles.login}>Уже есть аккаунт? Войти</Text>
                             </TouchableOpacity>
-                </KeyboardAvoidingView>
-                </View>
-            </ImageBackground>
+                        </KeyboardAvoidingView>
+                    </View>
+                </ImageBackground>
             </View>
-            </TouchableWithoutFeedback>
-    )
-}
+        </TouchableWithoutFeedback>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -226,5 +235,14 @@ const styles = StyleSheet.create({
     },
     takePhotoContainer: {
         position: 'absolute',
-    }
+    },
+    showPassword: {
+        position: 'absolute',
+        top: 32,
+        right: 32,
+        color: '#1B4371',
+        fontFamily: 'Roboto-Regular',
+        fontSize: 16,
+        lineHeight: 19,
+  },
 })

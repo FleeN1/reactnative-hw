@@ -9,6 +9,7 @@ const initialState = {
 
 export default function LoginScreen({ navigation }) {
     const [state, setState] = useState(initialState)
+    const [isPasswordSecure, setIsPasswordSecure] = useState(true)
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
 
     const keyboardHidden = () => {
@@ -40,7 +41,7 @@ export default function LoginScreen({ navigation }) {
                     }}
                     >
                         <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                         >
                             <Text style={styles.title}>Войти</Text>
                             <TextInput
@@ -51,10 +52,10 @@ export default function LoginScreen({ navigation }) {
                                 }}
                                 placeholder='Адрес электронной почты'
                                 onChangeText={(value) => {
-                                    setState((prev) => ({...prev, email: value}))
+                                    setState((prev) => ({ ...prev, email: value }))
                                 }}
                             />
-                            <View style={{position: 'relative'}}>
+                            <View style={{ position: 'relative' }}>
                                 <TextInput
                                     value={state.password}
                                     style={styles.input}
@@ -63,9 +64,17 @@ export default function LoginScreen({ navigation }) {
                                         setIsShowKeyboard(true)
                                     }}
                                     onChangeText={(value) => {
-                                        setState((prev) => ({...prev, password: value}))
+                                        setState((prev) => ({ ...prev, password: value }))
                                     }}
                                 />
+                                <Text
+                                    onPress={() => {
+                                        setIsPasswordSecure(!isPasswordSecure)
+                                    }}
+                                    style={styles.showPassword}
+                                >
+                                    {isPasswordSecure ? 'Показать' : 'Скрыть'}
+                                </Text>
                             </View>
                             <TouchableOpacity style={styles.btn} onPress={submitLog}>
                                 <Text style={styles.buttonText}>Войти</Text>
@@ -73,7 +82,7 @@ export default function LoginScreen({ navigation }) {
                             <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
                                 <Text style={styles.login}>Нет аккаунта? Зарегистрироваться</Text>
                             </TouchableOpacity>
-                    </KeyboardAvoidingView>
+                        </KeyboardAvoidingView>
                     </View>
                 </ImageBackground>
             </View>
@@ -140,6 +149,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 19,
     },
+    showPassword: {
+        position: 'absolute',
+        top: 32,
+        right: 32,
+        color: '#1B4371',
+        fontFamily: 'Roboto-Regular',
+        fontSize: 16,
+        lineHeight: 19,
+  },
     login: {
         color: '#1B4371',
         fontFamily: 'Roboto-Regular',
