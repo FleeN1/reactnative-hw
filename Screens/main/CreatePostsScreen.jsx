@@ -14,6 +14,8 @@ import { Camera, CameraType } from 'expo-camera'
 import { FontAwesome } from '@expo/vector-icons'
 import { Feather } from '@expo/vector-icons'
 import * as Location from 'expo-location'
+import db from '../../firebase/config'
+import { nanoid } from 'nanoid'
 
 export default function CreatePostsScreen({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false)
@@ -22,27 +24,62 @@ export default function CreatePostsScreen({ navigation }) {
   const [place, setPlace] = useState('')
   const [title, setTitle] = useState('')
   const [location, setLocation] = useState(null)
-  const [errorMsg, setErrorMsg] = useState(null)
 
+  const { userId, login } = useSelector((state) => state.auth)
+  
+  useEffect(() => {
+    ;(async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync()
+
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied')
+        return
+      }
+      let locationRes = await Location.getCurrentPositionAsync({})
+      setLocation(locationRes)
+    })()
+    }, [])
+  
   const takePhoto = async () => {
-    const photo = await camera.takePictureAsync()
-    setPhoto(photo.uri)
+    const { uri } = await camera.takePictureAsync()
+    setPhoto(uri)
   }
 
   const sendData = () => {
-    const getLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync()
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied')
-        return
-      }
+    uploadPostToServer()
+    navigation.navigate('Home')
+    setPhoto('')
+    setTitle('')
+    setPlace('')
+  }
 
-      let location = await Location.getCurrentPositionAsync({})
-      setLocation(location)
-    }
+  const uploadPostToServer = async () => {
+    const photo = await uploadPhotoToServer()
+    const createPost = await db.firestore().collection('posts').add({
+      photo,
+      title,
+      location: location.coords,
+      place,
+      userId,
+      login,
+    })
+  }
 
-    getLocation()
-    navigation.navigate('Home', { photo, title, location, place })
+  const uploadPhotoToServer = async () => {
+    const response = await fetch(photo)
+    const file = await response.blob()
+
+    const uniquePostId = nanoid()
+
+    await db.storage().ref(`postImage/${uniquePostId}`).put(file)
+
+    const processedPhoto = await db
+      .storage()
+      .ref('postImage')
+      .child(uniquePostId)
+      .getDownloadURL()
+
+    return processedPhoto
   }
 
   const keyboardHide = () => {
@@ -65,16 +102,20 @@ export default function CreatePostsScreen({ navigation }) {
             </TouchableOpacity>
           )}
           {photo && (
-            <TouchableOpacity onPress={() => { setPhoto('') }} style={{
-              width: 60,
+            <TouchableOpacity
+              onPress={() => {
+                setPhoto('')
+              }}
+              style={{
+                width: 60,
                 height: 60,
                 borderRadius: 50,
                 backgroundColor: 'rgba(255, 255, 255, 0.3)',
                 alignItems: 'center',
-              justifyContent: 'center',
-            }}
+                justifyContent: 'center',
+              }}
             >
-              <FontAwesome name="camera" size={24} color="#BDBDBD" />
+              <FontAwesome name="camera" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           )}
         </Camera>
@@ -104,7 +145,7 @@ export default function CreatePostsScreen({ navigation }) {
               setIsShowKeyboard(true)
             }}
           />
-          <View style={{ position: 'absolute', top: 82, left: 16 }}>
+          <View style={{ position: 'absolute', top: 65, left: 16 }}>
             <Feather name="map-pin" size={24} color="#BDBDBD" />
           </View>
         </View>
@@ -169,7 +210,6 @@ const styles = StyleSheet.create({
   },
   btnText: {
     fontFamily: 'Roboto-Regular',
-
     fontSize: 16,
     lineHeight: 19,
     color: '#FFFFFF',
@@ -186,7 +226,7 @@ const styles = StyleSheet.create({
   },
   place: {
     paddingBottom: 16,
-    paddingTop: 19,
+    paddingTop: 16,
     paddingLeft: 28,
     marginHorizontal: 16,
     borderBottomWidth: 1,

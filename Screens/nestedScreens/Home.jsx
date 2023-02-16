@@ -7,20 +7,35 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import db from '../../firebase/config'
 import { Feather } from '@expo/vector-icons'
 
 export default function Home({ route, navigation }) {
   const [posts, setPosts] = useState([])
+  const { email, photo, login } = useSelector((state) => state.auth)
+
+  const getAllPosts = async () => {
+    await db
+      .firestore()
+      .collection('posts')
+      .onSnapshot((data) =>
+        setPosts(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+      )
+  }
 
   useEffect(() => {
-    if (route.params) {
-      setPosts((prev) => [...prev, route.params])
-    }
-  }, [route.params])
+    getAllPosts()
+  }, [])
 
   return (
     <View style={styles.container}>
+      <View style={styles.info}>
+        <Image source={{ uri: photo }} style={styles.avatar} />
+        <View style={styles.nameEmail}>
+          <Text style={styles.login}>{login}</Text>
+          <Text style={styles.email}>{email}</Text>
+        </View>
+      </View>
       <FlatList
         data={posts}
         keyExtractor={(item, index) => index.toString()}
@@ -70,6 +85,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#ffffff',
   },
+  info: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginLeft: 16,
+    marginTop: 32,
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  login: {
+    fontFamily: 'Roboto-Bold',
+    fontSize: 13,
+    lineHeight: 15,
+    color: '#212121 ',
+  },
+  email: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 11,
+    lineHeight: 13,
+
+    color: 'rgba(33, 33, 33, 0.8)  ',
+  },
   img: {
     marginHorizontal: 16,
     height: 240,
@@ -101,5 +142,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     color: '#BDBDBD',
+  },
+  place: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 16,
+    lineHeight: 19,
+    textAlign: 'right',
+    textDecorationLine: 'underline',
+
+    color: '#212121',
   },
 })

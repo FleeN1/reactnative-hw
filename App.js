@@ -1,10 +1,12 @@
 import React, { useCallback } from "react";
 
-import { NavigationContainer } from "@react-navigation/native";
+import { Provider } from 'react-redux'
+import { store } from './redux/store'
+
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useRoute } from "./router";
 
+import Main from './component/Main'
 
 
 
@@ -25,11 +27,11 @@ export default function App() {
   if (!loadFonts) {
     return null
   }
-  
-  const routing = useRoute(true)
+
   
   return (
-    <NavigationContainer onLayout={onLayout}>
-      {routing}
-    </NavigationContainer>)
+    <Provider store={store}>
+      <Main onLayout={onLayout} />
+    </Provider>
+  )
 }

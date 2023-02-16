@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ImageBackground, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-
+import { useDispatch } from 'react-redux'
+import { authSignInUser } from '../../redux/auth/authOperations'
 
 const initialState = {
     email: '',
@@ -11,6 +12,7 @@ export default function LoginScreen({ navigation }) {
     const [state, setState] = useState(initialState)
     const [isPasswordSecure, setIsPasswordSecure] = useState(true)
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
+    const dispatch = useDispatch()
 
     const keyboardHidden = () => {
         setIsShowKeyboard(false)
@@ -20,6 +22,7 @@ export default function LoginScreen({ navigation }) {
     const submitLog = () => {
         setIsShowKeyboard(false)
         Keyboard.dismiss()
+        dispatch(authSignInUser(state))
         setState(initialState)
     }
 
@@ -36,6 +39,7 @@ export default function LoginScreen({ navigation }) {
                             },
                             android: {
                                 ...styles.form,
+                                paddingBottom: isShowKeyboard ? 0 : 140,
                             },
                         }),
                     }}
@@ -60,6 +64,7 @@ export default function LoginScreen({ navigation }) {
                                     value={state.password}
                                     style={styles.input}
                                     placeholder='Пароль'
+                                    secureTextEntry={isPasswordSecure}
                                     onFocus={() => {
                                         setIsShowKeyboard(true)
                                     }}
@@ -93,7 +98,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#ffffff',
     },
     image: {
         flex: 1,
@@ -122,11 +127,11 @@ const styles = StyleSheet.create({
     input: {
         marginHorizontal: 16,
         marginTop: 16,
+        backgroundColor: '#F6F6F6',
         padding: 16,
         borderWidth: 1,
         borderColor: '#E8E8E8',
         borderRadius: 8,
-        backgroundColor: '#F6F6F6',
 
         fontFamily: 'Roboto-Regular',
         fontSize: 16,

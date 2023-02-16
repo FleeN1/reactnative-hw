@@ -3,18 +3,24 @@ import { ImageBackground, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, 
 import { Camera, CameraType } from 'expo-camera';
 import { AntDesign } from '@expo/vector-icons';
 
+import { useDispatch } from 'react-redux'
+
+import { authSignUpUser } from '../../redux/auth/authOperations'
+
 const initialState = {
     login: '',
-    email: '',
+    mail: '',
     password: '',
+    photo: '',
 }
 
 export default function RegistrationScreen({ navigation }) {
     const [state, setState] = useState(initialState)
     const [isShowKeyboard, setIsShowKeyboard] = useState(false)
     const [camera, setCamera] = useState()
-    const [photo, setPhoto] = useState('');
     const [isPasswordSecure, setIsPasswordSecure] = useState(true)
+
+    const dispatch = useDispatch()
 
 
     const keyboardHidden = () => {
@@ -25,13 +31,14 @@ export default function RegistrationScreen({ navigation }) {
     const submitReg = () => {
         setIsShowKeyboard(false)
         Keyboard.dismiss()
+        dispatch(authSignUpUser(state))
         setState(initialState)
     }
     
     const takePhoto = async () => {
         const { status } = await Camera.requestCameraPermissionsAsync()
         const photo = await camera.takePictureAsync()
-        setPhoto(photo.uri)
+        setPhoto((prev) => ({...prev, photo: photo.uri}))
     }
 
 
@@ -47,22 +54,23 @@ export default function RegistrationScreen({ navigation }) {
                             },
                             android: {
                                 ...styles.form,
+                                paddingBottom: isShowKeyboard ? 0 : 78,
                             },
                         }),
                     }}
                     >
                         <Camera style={styles.camera} ref={setCamera} type={CameraType.front}>
-                            {photo && (
+                            {state.photo && (
                                 <>
                                     <View style={styles.takePhotoContainer}>
-                                        <Image source={{ uri: photo }} style={styles.photo} />
+                                        <Image source={{ uri: state.photo }} style={styles.photo} />
                                     </View>
                                 </>
                             )}
                         </Camera>
-                        {photo && (
+                        {state.photo && (
                             <TouchableOpacity onPress={() => {
-                                setPhoto('')
+                                setState((prev) => ({ ...prev, photo: '' }))
                             }}
                                 style={
                                     {
@@ -83,7 +91,7 @@ export default function RegistrationScreen({ navigation }) {
                                 <AntDesign name="close" size={20} color='#BDBDBD' />
                             </TouchableOpacity>
                         )}
-                        {!photo && (
+                        {!state.photo && (
                             <TouchableOpacity style={{
                                 position: 'absolute',
                                 bottom: 510,
@@ -94,7 +102,7 @@ export default function RegistrationScreen({ navigation }) {
                                 <AntDesign name='pluscircleo' size={25} color='#FF6C00' />
                             </TouchableOpacity>
                         )}
-                        <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : 'height'}>
+                        <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : ''}>
                             <Text style={styles.title}>Регистрация</Text>
                             <TextInput
                                 value={state.login}
@@ -108,14 +116,14 @@ export default function RegistrationScreen({ navigation }) {
                                 }}
                             />
                             <TextInput
-                                value={state.email}
+                                value={state.mail}
                                 placeholder='Адрес электронной почты'
                                 style={styles.input}
                                 onFocus={() => {
                                     setIsShowKeyboard(true)
                                 }}
                                 onChangeText={(value) => {
-                                    setState((prev) => ({ ...prev, email: value }))
+                                    setState((prev) => ({ ...prev, mail: value }))
                                 }}
                             />
                             <View>
@@ -130,14 +138,14 @@ export default function RegistrationScreen({ navigation }) {
                                         setState((prev) => ({ ...prev, password: value }))
                                     }}
                                 />
-                                                <Text
-                  onPress={() => {
-                    setIsPasswordSecure(!isPasswordSecure)
-                  }}
-                  style={styles.showPassword}
-                >
-                  {isPasswordSecure ? 'Показати' : 'Приховати'}
-                </Text>
+                                <Text
+                                    onPress={() => {
+                                        setIsPasswordSecure(!isPasswordSecure)
+                                    }}
+                                    style={styles.showPassword}
+                                >
+                                    {isPasswordSecure ? 'Показати' : 'Приховати'}
+                                </Text>
                             </View>
                             <TouchableOpacity style={styles.btn} onPress={submitReg}>
                                 <Text style={styles.buttonText}>Зарегистрироваться</Text>
@@ -170,7 +178,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
         paddingTop: 92,
-        paddingBottom: 92,
+        paddingBottom: 78,
     },
     title: {
         fontFamily: 'Roboto-Medium',
