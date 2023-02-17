@@ -38,7 +38,7 @@ export default function RegistrationScreen({ navigation }) {
     const takePhoto = async () => {
         const { status } = await Camera.requestCameraPermissionsAsync()
         const photo = await camera.takePictureAsync()
-        setPhoto((prev) => ({...prev, photo: photo.uri}))
+        setState((prev) => ({ ...prev, photo: photo.uri }))
     }
 
 
