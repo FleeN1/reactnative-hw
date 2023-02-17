@@ -76,7 +76,7 @@ export default function CommentsScreen({ route }) {
             value={comment}
             onChangeText={(value) => setComment(value)}
             style={styles.comment}
-            placeholder="Оставить комментарий"
+            placeholder="Комментировать"
             placeholderTextColor="#BDBDBD"
           />
 

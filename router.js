@@ -1,15 +1,16 @@
 import React from 'react'
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { createStackNavigator } from '@react-navigation/stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+
 import RegistrationScreen from './Screens/auth/RegistrationScreen.jsx'
 import LoginScreen from './Screens/auth/LoginScreen.jsx'
 import PostsScreen from './Screens/main/PostsScreen.jsx'
 import CreatePostsScreen from './Screens/main/CreatePostsScreen.jsx'
 import ProfileScreen from './Screens/main/ProfileScreen.jsx'
 
-import { Feather } from '@expo/vector-icons'
 import { AntDesign } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 
 const AuthStack = createStackNavigator()
 const MainTab = createBottomTabNavigator()
@@ -53,7 +54,7 @@ export const useRoute = (isAuth) => {
         component={CreatePostsScreen}
         options={{
           tabBarShowLabel: false,
-          title: 'Создать публикацию',
+          title: 'Створити публікацію',
           headerTitleStyle: {
             color: '#212121',
             fontFamily: 'Roboto-Medium',
@@ -66,13 +67,12 @@ export const useRoute = (isAuth) => {
             <AntDesign name="plus" size={13} color="#FFFFFF" />
           ),
           tabBarIconStyle: {
+            display: 'block',
             width: 70,
             height: 40,
-            display: 'flex',
             backgroundColor: '#FF6C00',
             borderRadius: 20,
-            marginTop: 8,
-            marginBottom: 8,
+            marginTop: 9,
           },
         }}
       />

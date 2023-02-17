@@ -1,6 +1,5 @@
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
-
 import Home from '../nestedScreens/Home'
 import CommentsScreen from '../nestedScreens/CommentsScreen'
 import MapScreen from '../nestedScreens/MapScreen'
@@ -18,8 +17,6 @@ export default function PostsScreen({ navigation }) {
   const signOut = () => {
     dispatch(authSignOutUser())
   }
-
-
   return (
     <NestedScreen.Navigator>
       <NestedScreen.Screen
@@ -36,9 +33,7 @@ export default function PostsScreen({ navigation }) {
             background: '#FFFFFF',
           },
           headerRight: () => (
-            <TouchableOpacity
-              style={{ marginRight: 16 }}
-            >
+            <TouchableOpacity style={{ marginRight: 16 }} onPress={signOut}>
               <Feather name="log-out" size={24} color="#BDBDBD" />
             </TouchableOpacity>
           ),
@@ -70,7 +65,6 @@ export default function PostsScreen({ navigation }) {
         component={MapScreen}
         options={{ title: 'Местонахождение' }}
       />
-      
     </NestedScreen.Navigator>
   )
 }

@@ -2,36 +2,36 @@ import React, { useCallback } from "react";
 
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
+import React, { useCallback } from 'react'
 
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
+import { Provider } from 'react-redux'
+import { store } from './redux/store'
 
-import Main from './component/Main'
+import { useFonts } from 'expo-font'
+import * as SplashScreen from 'expo-splash-screen'
 
-
-
+import Main from './components/Main'
 
 export default function App() {
-  const [loadFonts] = useFonts({
+  const [fontsLoaded] = useFonts({
     'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
     'Roboto-Medium': require('./assets/fonts/Roboto-Medium.ttf'),
     'Roboto-Bold': require('./assets/fonts/Roboto-Bold.ttf'),
-    })
+  })
 
-   const onLayout = useCallback(async () => {
-    if (loadFonts) {
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
       await SplashScreen.hideAsync()
     }
-  }, [loadFonts])
+  }, [fontsLoaded])
 
-  if (!loadFonts) {
+  if (!fontsLoaded) {
     return null
   }
 
-  
   return (
     <Provider store={store}>
-      <Main onLayout={onLayout} />
+      <Main onLayout={onLayoutRootView} />
     </Provider>
   )
 }

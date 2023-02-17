@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import {
   Text,
   View,
@@ -10,24 +11,24 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native'
+
 import { Camera, CameraType } from 'expo-camera'
 import { FontAwesome } from '@expo/vector-icons'
 import { Feather } from '@expo/vector-icons'
 import * as Location from 'expo-location'
 import db from '../../firebase/config'
 import { nanoid } from 'nanoid'
-import { useSelector } from 'react-redux'
 
 export default function CreatePostsScreen({ navigation }) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false)
   const [camera, setCamera] = useState(null)
   const [photo, setPhoto] = useState('')
-  const [place, setPlace] = useState('')
   const [title, setTitle] = useState('')
   const [location, setLocation] = useState(null)
+  const [place, setPlace] = useState('')
 
   const { userId, login } = useSelector((state) => state.auth)
-  
+
   useEffect(() => {
     ;(async () => {
       const { status } = await Location.requestForegroundPermissionsAsync()
@@ -39,8 +40,8 @@ export default function CreatePostsScreen({ navigation }) {
       let locationRes = await Location.getCurrentPositionAsync({})
       setLocation(locationRes)
     })()
-    }, [])
-  
+  }, [])
+
   const takePhoto = async () => {
     const { uri } = await camera.takePictureAsync()
     setPhoto(uri)
@@ -137,7 +138,7 @@ export default function CreatePostsScreen({ navigation }) {
           />
           <TextInput
             style={styles.place}
-            placeholder={'Локация'}
+            placeholder={'Местонахождение'}
             value={place}
             onChangeText={(value) => {
               setPlace((prev) => ({ ...prev, value }))

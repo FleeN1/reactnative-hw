@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+
 import {
   Text,
   View,
@@ -9,7 +11,6 @@ import {
 } from 'react-native'
 import db from '../../firebase/config'
 import { Feather } from '@expo/vector-icons'
-import { useSelector } from 'react-redux'
 
 export default function Home({ route, navigation }) {
   const [posts, setPosts] = useState([])

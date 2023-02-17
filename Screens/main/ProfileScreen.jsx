@@ -40,7 +40,7 @@ export default function ProfileScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('../../assets/image/photo-bg.jpg')}
+        source={require('../../assets/img/photo-bg.jpg')}
         style={styles.image}
       >
         <View style={styles.box}>
