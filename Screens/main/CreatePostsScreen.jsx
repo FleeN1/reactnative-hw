@@ -50,9 +50,9 @@ export default function CreatePostsScreen({ navigation }) {
   const sendData = () => {
     uploadPostToServer()
     navigation.navigate('Home')
-    setPhoto('')
-    setTitle('')
-    setPlace('')
+    setPhoto(null)
+    setTitle(null)
+    setPlace(null)
   }
 
   const uploadPostToServer = async () => {
@@ -71,7 +71,7 @@ export default function CreatePostsScreen({ navigation }) {
     const response = await fetch(photo)
     const file = await response.blob()
 
-    const uniquePostId = nanoid()
+    const uniquePostId = Date.now().toString();
 
     await db.storage().ref(`postImage/${uniquePostId}`).put(file)
 
@@ -129,9 +129,7 @@ export default function CreatePostsScreen({ navigation }) {
             style={styles.title}
             placeholder={'Название'}
             value={title}
-            onChangeText={(value) => {
-              setTitle((prev) => ({ ...prev, value }))
-            }}
+            onChangeText={(value) => setTitle(value)}
             onFocus={() => {
               setIsShowKeyboard(true)
             }}
@@ -140,9 +138,7 @@ export default function CreatePostsScreen({ navigation }) {
             style={styles.place}
             placeholder={'Местонахождение'}
             value={place}
-            onChangeText={(value) => {
-              setPlace((prev) => ({ ...prev, value }))
-            }}
+            onChangeText={(value) => setPlace(value)}
             onFocus={() => {
               setIsShowKeyboard(true)
             }}
