@@ -147,7 +147,7 @@ export default function CreatePostsScreen({ navigation }) {
               setIsShowKeyboard(true)
             }}
           />
-          <View style={{ position: 'absolute', top: 65, left: 16 }}>
+          <View style={{ position: 'absolute', top: 78, left: 16 }}>
             <Feather name="map-pin" size={24} color="#BDBDBD" />
           </View>
         </View>

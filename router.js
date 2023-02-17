@@ -67,7 +67,7 @@ export const useRoute = (isAuth) => {
             <AntDesign name="plus" size={13} color="#FFFFFF" />
           ),
           tabBarIconStyle: {
-            display: 'block',
+            display: 'flex',
             width: 70,
             height: 40,
             backgroundColor: '#FF6C00',

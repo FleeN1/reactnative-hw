@@ -42,7 +42,7 @@ export default function LoginScreen({ navigation }) {
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <ImageBackground
-          source={require('../../assets/img/photo-bg.jpg')}
+          source={require('../../assets/image/photo-bg.jpg')}
           style={styles.image}
         >
           <View
