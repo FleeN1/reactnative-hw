@@ -1,282 +1,327 @@
-import React, { useState } from 'react'
-
-import { StatusBar } from 'expo-status-bar'
-import { AntDesign } from '@expo/vector-icons'
+import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   ImageBackground,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
   TextInput,
   TouchableOpacity,
-  Platform,
-  KeyboardAvoidingView,
   Keyboard,
-  TouchableWithoutFeedback,
+  Dimensions,
   Image,
-} from 'react-native'
-import { Camera, CameraType } from 'expo-camera'
-import { useDispatch } from 'react-redux'
+} from "react-native";
+import ToastManager from "toastify-react-native";
 
-import { authSignUpUser } from '../../redux/auth/authOperations'
+import { useDispatch } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
+import { AntDesign } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 
-const initialState = {
-  mail: '',
-  password: '',
-  login: '',
-  photo: '',
-}
+import { authSignUpUser } from "../../redux/auth/authOperations";
 
 export default function RegistrationScreen({ navigation }) {
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false)
-  const [state, setState] = useState(initialState)
-  const [isPasswordSecure, setIsPasswordSecure] = useState(true)
-  const [camera, setCamera] = useState(null)
+  const initialState = {
+    login: "",
+    mail: "",
+    password: "",
+    avatar: null,
+  };
 
-  const dispatch = useDispatch()
+  const [state, setstate] = useState(initialState);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
-  const takePhoto = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync()
-    const photo = await camera.takePictureAsync()
-    setState((prev) => ({ ...prev, photo: photo.uri }))
-  }
+  const dispatch = useDispatch();
 
-  const registration = () => {
-    setIsShowKeyboard(false)
-    Keyboard.dismiss()
-    dispatch(authSignUpUser(state))
-    setState(initialState)
-  }
+  const [isOnFocusFirst, setIsOnFocusFirst] = useState(false);
+  const [isOnFocusSecond, setIsOnFocusSecond] = useState(false);
+  const [isOnFocusThird, setIsOnFocusThird] = useState(false);
 
-  const keyboardHide = () => {
-    setIsShowKeyboard(false)
-    Keyboard.dismiss()
-  }
+  const [isPasswordSecure, setIsPasswordSecure] = useState(true);
+
+  const changeIsPasswordSecure = () => {
+    setIsPasswordSecure(!isPasswordSecure);
+  };
+
+  const onReturn = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+    setIsOnFocusSecond(false);
+    setIsOnFocusThird(false);
+  };
+
+  const onRegistration = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+    dispatch(authSignUpUser(state));
+
+    setstate(initialState);
+  };
+
+  const onScreenTouch = () => {
+    setIsShowKeyboard(false);
+    setIsOnFocusFirst(false);
+    setIsOnFocusSecond(false);
+    setIsOnFocusThird(false);
+    Keyboard.dismiss();
+  };
+
+  const onFocusFirstInput = () => {
+    setIsShowKeyboard(true);
+    setIsOnFocusFirst(true);
+    setIsOnFocusSecond(false);
+    setIsOnFocusThird(false);
+  };
+
+  const onFocusSecondInput = () => {
+    setIsShowKeyboard(true);
+    setIsOnFocusSecond(true);
+    setIsOnFocusThird(false);
+    setIsOnFocusFirst(false);
+  };
+
+  const onFocusThirdInput = () => {
+    setIsShowKeyboard(true);
+    setIsOnFocusThird(true);
+    setIsOnFocusFirst(false);
+    setIsOnFocusSecond(false);
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setstate((prevState) => ({ ...prevState, avatar: result.assets[0].uri }));
+    }
+  };
 
   return (
-    <TouchableWithoutFeedback onPress={keyboardHide}>
+    <TouchableWithoutFeedback onPress={onScreenTouch}>
       <View style={styles.container}>
         <ImageBackground
-          source={require('../../assets/image/photo-bg.jpg')}
           style={styles.image}
+          source={require("../../assets/images/bg-photo.jpg")}
         >
+          <ToastManager style={styles.toast} />
           <View
             style={{
               ...Platform.select({
                 ios: {
                   ...styles.form,
-                  marginBottom: isShowKeyboard ? 180 : 0,
+                  marginBottom: isShowKeyboard ? 140 : 0,
                 },
                 android: {
                   ...styles.form,
-                  paddingBottom: isShowKeyboard ? 0 : 78,
                 },
               }),
             }}
           >
-            <Camera
-              style={styles.camera}
-              ref={setCamera}
-              type={CameraType.front}
-            >
-              {state.photo && (
-                <>
-                  <View style={styles.takePhotoContainer}>
-                    <Image source={{ uri: state.photo }} style={styles.photo} />
-                  </View>
-                </>
-              )}
-            </Camera>
-            {state.photo && (
-              <TouchableOpacity
-                onPress={() => {
-                  setState((prev) => ({ ...prev, photo: '' }))
-                }}
-                style={{
-                  position: 'absolute',
-                  bottom: 510,
-                  right: 136,
-                  width: 24,
-                  height: 24,
-                  backgroundColor: '#ffffff',
-                  borderRadius: 50,
-                  borderWidth: 1,
-                  borderColor: '#E8E8E8',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <AntDesign name="close" size={20} color="#BDBDBD" />
-              </TouchableOpacity>
-            )}
-            {!state.photo && (
-              <TouchableOpacity
-                style={{
-                  position: 'absolute',
-                  bottom: 510,
-                  right: 136,
-                }}
-                onPress={takePhoto}
-              >
-                <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
-              </TouchableOpacity>
-            )}
             <KeyboardAvoidingView
-              behavior={Platform.OS == 'ios' ? 'padding' : ''}
+              behavior={Platform.OS == "ios" ? "padding" : "height"}
             >
-              <Text style={styles.title}>Регистрация</Text>
-              <TextInput
-                value={state.login}
-                style={styles.input}
-                placeholder="Логин"
-                onFocus={() => {
-                  setIsShowKeyboard(true)
-                }}
-                onChangeText={(value) => {
-                  setState((prev) => ({ ...prev, login: value }))
-                }}
-              />
-              <TextInput
-                value={state.mail}
-                style={styles.input}
-                placeholder="Адрес электронной почты"
-                onFocus={() => {
-                  setIsShowKeyboard(true)
-                }}
-                onChangeText={(value) => {
-                  setState((prev) => ({ ...prev, mail: value }))
-                }}
-              />
-              <View style={{ position: 'relative' }}>
-                <TextInput
-                  value={state.password}
-                  style={styles.input}
-                  placeholder="Пароль"
-                  secureTextEntry={isPasswordSecure}
-                  onFocus={() => {
-                    setIsShowKeyboard(true)
-                  }}
-                  onChangeText={(value) => {
-                    setState((prev) => ({ ...prev, password: value }))
-                  }}
-                />
-                <Text
-                  onPress={() => {
-                    setIsPasswordSecure(!isPasswordSecure)
-                  }}
-                  style={styles.showPassword}
-                >
-                  {isPasswordSecure ? 'Показать' : 'Скрыть'}
-                </Text>
+              <View style={{ position: "absolute", top: -55, left: 128 }}>
+                <View style={styles.avatar}>
+                  {state.avatar ? (
+                    <View>
+                      <TouchableOpacity
+                        onPress={() =>
+                          setstate((prevState) => ({
+                            ...prevState,
+                            avatar: null,
+                          }))
+                        }
+                        style={styles.icon}
+                      >
+                        <Ionicons
+                          name="close-circle-outline"
+                          size={25}
+                          color="#E8E8E8"
+                        />
+                      </TouchableOpacity>
+                      <Image
+                        source={{ uri: state.avatar }}
+                        style={styles.avatarImage}
+                      />
+                    </View>
+                  ) : (
+                    <TouchableOpacity onPress={pickImage} style={styles.icon}>
+                      <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
 
-              <TouchableOpacity style={styles.btn} onPress={registration}>
-                <Text style={styles.btnText}>Зарегистрироваться</Text>
+              <Text style={styles.formTitle}>Регистрация</Text>
+              <TextInput
+                onSubmitEditing={onReturn}
+                value={state.login}
+                onFocus={onFocusFirstInput}
+                onChangeText={(value) =>
+                  setstate((prevState) => ({ ...prevState, login: value }))
+                }
+                placeholder="Логин"
+                placeholderTextColor="#BDBDBD"
+                style={{
+                  ...styles.input,
+                  borderColor: isOnFocusFirst ? "#FF6C00" : "#E8E8E8",
+                }}
+              />
+              <TextInput
+                onSubmitEditing={onReturn}
+                value={state.mail}
+                onFocus={onFocusSecondInput}
+                onChangeText={(value) =>
+                  setstate((prevState) => ({ ...prevState, mail: value }))
+                }
+                placeholder="Адрес электронной почты"
+                placeholderTextColor="#BDBDBD"
+                style={{
+                  ...styles.input,
+                  borderColor: isOnFocusSecond ? "#FF6C00" : "#E8E8E8",
+                }}
+              />
+              <TextInput
+                onSubmitEditing={onReturn}
+                value={state.password}
+                onFocus={onFocusThirdInput}
+                onChangeText={(value) =>
+                  setstate((prevState) => ({ ...prevState, password: value }))
+                }
+                placeholder="Пароль"
+                placeholderTextColor="#BDBDBD"
+                secureTextEntry={isPasswordSecure}
+                style={{
+                  ...styles.input,
+                  borderColor: isOnFocusThird ? "#FF6C00" : "#E8E8E8",
+                }}
+              />
+
+              <Text
+                style={styles.swowPassword}
+                onPress={changeIsPasswordSecure}
+              >
+                {isPasswordSecure ? "Показать" : "Скрыть"}
+              </Text>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.btn}
+                onPress={onRegistration}
+              >
+                <Text style={styles.btnTitle}> Зарегистрироваться</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                 <Text style={styles.login}>Уже есть аккаунт? Войти</Text>
               </TouchableOpacity>
             </KeyboardAvoidingView>
           </View>
         </ImageBackground>
+        <StatusBar style="auto" />
       </View>
     </TouchableWithoutFeedback>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   image: {
     flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'flex-end',
+    resizeMode: "cover",
+    justifyContent: "flex-end",
   },
   form: {
-    position: 'relative',
-    backgroundColor: '#FFFFFF',
+    position: "relative",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-    paddingTop: 92,
-    paddingBottom: 78,
+    height: 549,
+    backgroundColor: "#fff",
   },
-  camera: {
-    position: 'absolute',
-    top: -60,
-    left: '35%',
-    width: 120,
-    height: 120,
-    backgroundColor: '#F6F6F6',
-
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  photo: {
+  avatar: {
     width: 120,
     height: 120,
     borderRadius: 16,
+    backgroundColor: "#F6F6F6",
+    position: "relative",
   },
-  title: {
+  icon: {
+    position: "absolute",
+    right: -12,
+    bottom: 14,
+    zIndex: 100,
+  },
+  avatarImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+  },
+  formTitle: {
+    marginHorizontal: 16,
     marginBottom: 16,
-
-    fontFamily: 'Roboto-Medium',
+    marginTop: 97,
     fontSize: 30,
     lineHeight: 35,
-    textAlign: 'center',
     letterSpacing: 0.01,
-    color: '#212121',
+    textAlign: "center",
   },
   input: {
-    backgroundColor: '#F6F6F6',
-
+    position: "relative",
     marginHorizontal: 16,
     marginTop: 16,
     padding: 16,
+    backgroundColor: "#F6F6F6",
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: "#E8E8E8",
     borderRadius: 8,
-
-    fontFamily: 'Roboto-Regular',
+    fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
-    color: '#212121',
+    color: "#212121",
+  },
+  swowPassword: {
+    position: "absolute",
+    top: 344,
+    right: 32,
+    color: "#1B4371",
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
   },
   btn: {
-    backgroundColor: '#FF6C00',
-    borderRadius: 100,
-    marginHorizontal: 16,
     marginTop: 43,
     marginBottom: 16,
-    paddingBottom: 16,
-    paddingTop: 16,
+    height: 51,
+    backgroundColor: "#ff6c00",
+    borderRadius: 100,
+    marginHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  btnText: {
-    textAlign: 'center',
-    fontFamily: 'Roboto-Regular',
+  btnTitle: {
+    color: "#fff",
+    fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
-    color: '#FFFFFF',
   },
   login: {
-    color: '#1B4371',
-    fontFamily: 'Roboto-Regular',
+    color: "#1B4371",
+    fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
-    textAlign: 'center',
+    textAlign: "center",
   },
-  showPassword: {
-    position: 'absolute',
-    top: 32,
-    right: 32,
-    color: '#1B4371',
-    fontFamily: 'Roboto-Regular',
-    fontSize: 16,
-    lineHeight: 19,
+  toast: {
+    width: Dimensions.get("window").width - 32,
   },
-  takePhotoContainer: {
-    position: 'absolute',
-  },
-})
+});

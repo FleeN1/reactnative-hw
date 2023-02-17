@@ -1,98 +1,98 @@
-import React, { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-
+import React, { useState, useEffect } from "react";
 import {
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
-  FlatList,
   Image,
   TouchableOpacity,
-} from 'react-native'
-import db from '../../firebase/config'
-import { Feather } from '@expo/vector-icons'
+  FlatList,
+  Dimensions,
+} from "react-native";
+import { useSelector } from "react-redux";
+import db from "../../firebase/config";
 
-export default function Home({ route, navigation }) {
-  const [posts, setPosts] = useState([])
-  const { email, photo, login } = useSelector((state) => state.auth)
+import { Feather } from "@expo/vector-icons";
 
-  const getAllPosts = async () => {
+export default function Home({ navigation }) {
+  const [posts, setPosts] = useState([]);
+
+  const { login, email, avatar } = useSelector((state) => state.auth);
+
+  const getAllPost = async () => {
     await db
       .firestore()
-      .collection('posts')
+      .collection("posts")
       .onSnapshot((data) =>
         setPosts(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-      )
-  }
+      );
+  };
 
   useEffect(() => {
-    getAllPosts()
-  }, [])
+    getAllPost();
+  }, []);
 
   return (
     <View style={styles.container}>
-      <View style={styles.info}>
-        <Image source={{ uri: photo }} style={styles.avatar} />
-        <View style={styles.nameEmail}>
-          <Text style={styles.login}>{login}</Text>
+      <View style={styles.userInfo}>
+        <Image source={{ uri: avatar }} style={styles.avatar} />
+        <View style={styles.userNameAndEmail}>
+          <Text style={styles.name}>{login}</Text>
           <Text style={styles.email}>{email}</Text>
         </View>
       </View>
+
       <FlatList
         data={posts}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, indx) => indx.toString()}
         renderItem={({ item }) => (
-          <>
-            <View style={{ marginTop: 32 }}>
-              <Image source={{ uri: item.photo }} style={styles.img} />
-              <Text style={styles.title}>{item.title.value}</Text>
-            </View>
-            <View style={styles.wraper}>
+          <View style={styles.post}>
+            <Image source={{ uri: item.photo }} style={styles.photo} />
+            <Text style={styles.photoTitle}>{item.photoName}</Text>
+            <View style={styles.commentsAndLocation}>
               <TouchableOpacity
                 style={styles.comments}
                 onPress={() =>
-                  navigation.navigate('Comments', {
+                  navigation.navigate("Comments", {
                     postId: item.id,
                     photo: item.photo,
                   })
                 }
               >
                 <Feather name="message-circle" size={24} color="#BDBDBD" />
-                <Text style={styles.commentsCount}>0</Text>
+                <Text style={styles.commentsAmount}>
+                  {item.comments.length}
+                </Text>
               </TouchableOpacity>
-              <View>
-                <TouchableOpacity
-                  style={{ display: 'flex', flexDirection: 'row' }}
-                  onPress={() =>
-                    navigation.navigate('Map', {
-                      location: item.location,
-                    })
-                  }
-                >
-                  <Feather name="map-pin" size={24} color="#BDBDBD" />
-                  <Text style={styles.place}>{item.place.value}</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.location}
+                onPress={() =>
+                  navigation.navigate("Map", {
+                    location: item.location,
+                    photoName: item.photoName,
+                  })
+                }
+              >
+                <Feather name="map-pin" size={24} color="#BDBDBD" />
+                <Text style={styles.locationName}>{item.locationName}</Text>
+              </TouchableOpacity>
             </View>
-          </>
+          </View>
         )}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingTop: 32,
   },
-  info: {
-    display: 'flex',
-    flexDirection: 'row',
-    marginLeft: 16,
-    marginTop: 32,
-    alignItems: 'center',
+  userInfo: {
+    display: "flex",
+    flexDirection: "row",
   },
   avatar: {
     width: 60,
@@ -100,58 +100,70 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 8,
   },
-  login: {
-    fontFamily: 'Roboto-Bold',
+  userNameAndEmail: {
+    height: 60,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  name: {
+    fontFamily: "Roboto-Bold",
     fontSize: 13,
     lineHeight: 15,
-    color: '#212121 ',
+    color: "#212121",
   },
   email: {
-    fontFamily: 'Roboto-Regular',
+    fontFamily: "Roboto-Regular",
     fontSize: 11,
     lineHeight: 13,
-
-    color: 'rgba(33, 33, 33, 0.8)  ',
+    color: "rgba(33, 33, 33, 0.8)",
   },
-  img: {
-    marginHorizontal: 16,
+  post: {
+    height: 299,
+    marginTop: 32,
+  },
+  photo: {
+    width: Dimensions.get("window").width - 32,
     height: 240,
-    marginBottom: 8,
     borderRadius: 8,
   },
-  title: {
-    marginHorizontal: 16,
+  photoTitle: {
     marginBottom: 8,
-    fontFamily: 'Roboto-Medium',
+    marginTop: 8,
+    fontFamily: "Roboto-Medium",
     fontSize: 16,
     lineHeight: 19,
-    color: '#212121',
+    color: "#212121",
   },
-  wraper: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 16,
+  commentsAndLocation: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   comments: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
   },
-  commentsCount: {
+  commentsAmount: {
     marginLeft: 6,
-    fontFamily: 'Roboto-Regular',
+    fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
-    color: '#BDBDBD',
+    color: "#BDBDBD",
   },
-  place: {
-    fontFamily: 'Roboto-Regular',
+  location: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  locationName: {
+    marginLeft: 4,
+    fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
-    textAlign: 'right',
-    textDecorationLine: 'underline',
-
-    color: '#212121',
+    color: "#212121",
+    textDecorationLine: "underline",
   },
-})
+});

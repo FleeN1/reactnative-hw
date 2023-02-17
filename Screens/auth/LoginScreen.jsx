@@ -1,192 +1,231 @@
-import React, { useState } from 'react'
+import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   ImageBackground,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
   TextInput,
   TouchableOpacity,
-  Platform,
-  KeyboardAvoidingView,
   Keyboard,
-  TouchableWithoutFeedback,
-} from 'react-native'
-import { useDispatch } from 'react-redux'
-import { authSignInUser } from '../../redux/auth/authOperations'
+  Dimensions,
+} from "react-native";
+import ToastManager from "toastify-react-native";
 
-const initialState = {
-  email: '',
-  password: '',
-}
+import { useDispatch } from "react-redux";
+
+import { authSignInUser } from "../../redux/auth/authOperations";
 
 export default function LoginScreen({ navigation }) {
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false)
-  const [state, setState] = useState(initialState)
-  const [isPasswordSecure, setIsPasswordSecure] = useState(true)
+  const initialState = {
+    email: "",
+    password: "",
+  };
 
-  const dispatch = useDispatch()
+  const [state, setstate] = useState(initialState);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
-  const login = () => {
-    setIsShowKeyboard(false)
-    Keyboard.dismiss()
-    dispatch(authSignInUser(state))
-    setState(initialState)
-  }
+  const dispatch = useDispatch();
 
-  const keyboardHide = () => {
-    setIsShowKeyboard(false)
-    Keyboard.dismiss()
-  }
+  const [isOnFocusSecond, setIsOnFocusSecond] = useState(false);
+  const [isOnFocusThird, setIsOnFocusThird] = useState(false);
+
+  const [isPasswordSecure, setIsPasswordSecure] = useState(true);
+
+  const changeIsPasswordSecure = () => {
+    setIsPasswordSecure(!isPasswordSecure);
+  };
+
+  const onReturn = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+    setIsOnFocusSecond(false);
+    setIsOnFocusThird(false);
+  };
+
+  const onRegistration = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+    dispatch(authSignInUser(state));
+    setstate(initialState);
+  };
+
+  const onScreenTouch = () => {
+    setIsShowKeyboard(false);
+    setIsOnFocusSecond(false);
+    setIsOnFocusThird(false);
+    Keyboard.dismiss();
+  };
+
+  const onFocusSecondInput = () => {
+    setIsShowKeyboard(true);
+    setIsOnFocusSecond(true);
+    setIsOnFocusThird(false);
+  };
+
+  const onFocusThirdInput = () => {
+    setIsShowKeyboard(true);
+    setIsOnFocusThird(true);
+    setIsOnFocusSecond(false);
+  };
 
   return (
-    <TouchableWithoutFeedback onPress={keyboardHide}>
+    <TouchableWithoutFeedback onPress={onScreenTouch}>
       <View style={styles.container}>
         <ImageBackground
-          source={require('../../assets/image/photo-bg.jpg')}
           style={styles.image}
+          source={require("../../assets/images/bg-photo.jpg")}
         >
+          <ToastManager style={styles.toast} />
           <View
             style={{
               ...Platform.select({
                 ios: {
                   ...styles.form,
-                  marginBottom: isShowKeyboard ? 180 : 0,
+                  marginBottom: isShowKeyboard ? 58 : 0,
                 },
                 android: {
                   ...styles.form,
-                  paddingBottom: isShowKeyboard ? 0 : 140,
                 },
               }),
             }}
           >
             <KeyboardAvoidingView
-              behavior={Platform.OS == 'ios' ? 'padding' : ''}
+              behavior={Platform.OS == "ios" ? "padding" : "height"}
             >
-              <Text style={styles.title}>Вход</Text>
-
+              <Text style={styles.formTitle}>Войти</Text>
               <TextInput
+                onSubmitEditing={onReturn}
                 value={state.email}
-                style={styles.input}
-                placeholder="Адресс электронной почты"
-                onFocus={() => {
-                  setIsShowKeyboard(true)
-                }}
-                onChangeText={(value) => {
-                  setState((prev) => ({ ...prev, email: value }))
+                onFocus={onFocusSecondInput}
+                onChangeText={(value) =>
+                  setstate((prevState) => ({ ...prevState, email: value }))
+                }
+                placeholder="Адрес электронной почты"
+                placeholderTextColor="#BDBDBD"
+                style={{
+                  ...styles.input,
+                  borderColor: isOnFocusSecond ? "#FF6C00" : "#E8E8E8",
                 }}
               />
-              <View style={{ position: 'relative' }}>
-                <TextInput
-                  value={state.password}
-                  style={styles.input}
-                  placeholder="Пароль"
-                  secureTextEntry={isPasswordSecure}
-                  onFocus={() => {
-                    setIsShowKeyboard(true)
-                  }}
-                  onChangeText={(value) => {
-                    setState((prev) => ({ ...prev, password: value }))
-                  }}
-                />
-                <Text
-                  onPress={() => {
-                    setIsPasswordSecure(!isPasswordSecure)
-                  }}
-                  style={styles.showPassword}
-                >
-                  {isPasswordSecure ? 'Показать' : 'Скрыть'}
-                </Text>
-              </View>
-
-              <TouchableOpacity style={styles.btn} onPress={login}>
-                <Text style={styles.btnText}>Войти</Text>
+              <TextInput
+                onSubmitEditing={onReturn}
+                value={state.password}
+                onFocus={onFocusThirdInput}
+                onChangeText={(value) =>
+                  setstate((prevState) => ({ ...prevState, password: value }))
+                }
+                placeholder="Пароль"
+                placeholderTextColor="#BDBDBD"
+                secureTextEntry={isPasswordSecure}
+                style={{
+                  ...styles.input,
+                  borderColor: isOnFocusThird ? "#FF6C00" : "#E8E8E8",
+                }}
+              />
+              <Text
+                style={styles.swowPassword}
+                onPress={changeIsPasswordSecure}
+              >
+                {isPasswordSecure ? "Показать" : "Скрыть"}
+              </Text>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.btn}
+                onPress={onRegistration}
+              >
+                <Text style={styles.btnTitle}>Войти</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Registration')}
+                onPress={() => navigation.navigate("Registration")}
               >
-                <Text style={styles.login}>
+                <Text style={styles.registration}>
                   Нет аккаунта? Зарегистрироваться
                 </Text>
               </TouchableOpacity>
             </KeyboardAvoidingView>
           </View>
         </ImageBackground>
+        <StatusBar style="auto" />
       </View>
     </TouchableWithoutFeedback>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   image: {
     flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'flex-end',
+    resizeMode: "cover",
+    justifyContent: "flex-end",
   },
   form: {
-    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
+    height: 489,
+    backgroundColor: "#fff",
     paddingTop: 32,
-    paddingBottom: 144,
   },
-  title: {
+  formTitle: {
+    marginHorizontal: 16,
     marginBottom: 16,
-    fontFamily: 'Roboto-Medium',
     fontSize: 30,
     lineHeight: 35,
-    textAlign: 'center',
     letterSpacing: 0.01,
-    color: '#212121',
+    textAlign: "center",
   },
   input: {
-    backgroundColor: '#F6F6F6',
-
     marginHorizontal: 16,
     marginTop: 16,
     padding: 16,
+    backgroundColor: "#F6F6F6",
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: "#E8E8E8",
     borderRadius: 8,
-
-    fontFamily: 'Roboto-Regular',
+    fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
-    color: '#212121',
+    color: "#212121",
+  },
+  swowPassword: {
+    position: "absolute",
+    top: 152,
+    right: 32,
+    color: "#1B4371",
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
   },
   btn: {
-    backgroundColor: '#FF6C00',
-    borderRadius: 100,
-    marginHorizontal: 16,
     marginTop: 43,
     marginBottom: 16,
-    paddingBottom: 16,
-    paddingTop: 16,
+    height: 51,
+    backgroundColor: "#ff6c00",
+    borderRadius: 100,
+    marginHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  btnText: {
-    textAlign: 'center',
-    fontFamily: 'Roboto-Regular',
-    fontSize: 16,
-    lineHeight: 19,
-    color: '#FFFFFF',
-  },
-  login: {
-    color: '#1B4371',
-    fontFamily: 'Roboto-Regular',
-    fontSize: 16,
-    lineHeight: 19,
-    textAlign: 'center',
-  },
-  showPassword: {
-    position: 'absolute',
-    top: 32,
-    right: 32,
-    color: '#1B4371',
-    fontFamily: 'Roboto-Regular',
+  btnTitle: {
+    color: "#fff",
+    fontFamily: "Roboto-Regular",
     fontSize: 16,
     lineHeight: 19,
   },
-})
+  registration: {
+    color: "#1B4371",
+    fontFamily: "Roboto-Regular",
+    fontSize: 16,
+    lineHeight: 19,
+    textAlign: "center",
+  },
+  toast: {
+    width: Dimensions.get("window").width - 32,
+  },
+});

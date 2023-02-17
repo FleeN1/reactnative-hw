@@ -2,13 +2,8 @@
   "expo": {
     "name": "reactnative-hw",
     "slug": "reactnative-hw",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
     "version": "1.0.0",
-    "orientation": "default",
+    "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -17,33 +12,26 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/0dc94388-6e94-44a1-b532-f3d18dbc81a5"
+      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.fleenywka.reactnativehw"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      },
-      "package": "com.fleenywka.reactnativehw"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "0dc94388-6e94-44a1-b532-f3d18dbc81a5"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
     }
   }
 }
+
+
+
+

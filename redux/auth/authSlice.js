@@ -1,29 +1,28 @@
-import { createSlice } from '@reduxjs/toolkit'
-import NativeAsyncLocalStorage from 'react-native/Libraries/Storage/NativeAsyncLocalStorage'
+import { createSlice } from "@reduxjs/toolkit";
 
-const state = {
+const initialState = {
   userId: null,
   login: null,
-  email: '',
+  email: "",
   stateChange: false,
-  photo: null,
-}
+  avatar: null,
+};
 
 export const authSlice = createSlice({
-  name: 'auth',
-  initialState: state,
+  name: "auth",
+  initialState,
   reducers: {
     updateUserProfile: (state, { payload }) => ({
       ...state,
       userId: payload.userId,
       login: payload.login,
-      photo: payload.photo,
       email: payload.email,
+      avatar: payload.avatar,
     }),
     authStateChange: (state, { payload }) => ({
       ...state,
       stateChange: payload.stateChange,
     }),
-    authSignOut: () => state,
+    authSignOut: () => initialState,
   },
-})
+});

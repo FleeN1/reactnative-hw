@@ -1,155 +1,220 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
+import moment from "moment";
 import {
-  Text,
   View,
+  Text,
   StyleSheet,
-  Image,
-  KeyboardAvoidingView,
   TextInput,
   TouchableOpacity,
-  Dimensions,
-  FlatList,
   SafeAreaView,
-} from 'react-native'
-import { useSelector } from 'react-redux'
-import db from '../../firebase/config'
-import { AntDesign } from '@expo/vector-icons'
+  FlatList,
+  Image,
+  Dimensions,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Keyboard,
+} from "react-native";
+import { useSelector } from "react-redux";
+
+import { AntDesign } from "@expo/vector-icons";
+
+import db from "../../firebase/config";
 
 export default function CommentsScreen({ route }) {
-  const [comment, setComment] = useState('')
-  const [allComments, setAllComments] = useState([])
-  const { postId } = route.params
-  const { photo } = useSelector((state) => state.auth)
+  const { postId, photo } = route.params;
+  const currentDate = new Date().toString();
 
-  useEffect(() => {
-    getAllComments()
-  }, [])
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
 
-  const createComment = async () => {
-    db.firestore()
-      .collection('posts')
-      .doc(postId)
-      .collection('comments')
-      .add({ comment, photo })
+  const [comment, setComment] = useState("");
 
-    setComment('')
-  }
+  const [allComments, setAllComments] = useState([]);
+
+  const { login, avatar } = useSelector((state) => state.auth);
+
+  useEffect(async () => {
+    getAllComments();
+  }, []);
 
   const getAllComments = async () => {
-    db.firestore()
-      .collection('posts')
+    const data = await db.firestore().collection("posts").doc(postId).get();
+
+    setAllComments(data.data().comments);
+  };
+
+  const addNewComment = async () => {
+    await db
+      .firestore()
+      .collection("posts")
       .doc(postId)
-      .collection('comments')
-      .onSnapshot((data) =>
-        setAllComments(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-      )
-  }
+      .update({
+        comments: [
+          ...allComments,
+          { comment, login, date: currentDate, avatar },
+        ],
+      });
+
+    getAllComments();
+
+    setComment("");
+  };
+
+  const onReturn = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+  };
+
+  const onFocusInput = () => {
+    setIsShowKeyboard(true);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={{ marginTop: 32 }}>
-        <Image source={{ uri: route.params.photo }} style={styles.img} />
-      </View>
+      <Image source={{ uri: photo }} style={styles.photo} />
 
-      <SafeAreaView>
-        <FlatList
-          style={styles.list}
-          data={allComments}
-          renderItem={({ item }) => (
-            <View style={styles.boxComment}>
-              <Image source={{ uri: item.photo }} style={styles.avatar} />
-              <View style={styles.boxText}>
-                <Text style={styles.textComment}>{item.comment}</Text>
-                <Text style={styles.dateComment}></Text>
+      <FlatList
+        data={allComments}
+        keyExtractor={(item, indx) => indx.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.commentContainer}>
+            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <View style={styles.comment}>
+              <Text style={styles.commentText}>{item.comment}</Text>
+              <View style={styles.dateAndTime}>
+                <View style={styles.dateTextContainer}>
+                  <Text style={styles.dateText}>
+                    {moment(item.date).format("D MMM, YYYY")}
+                  </Text>
+                </View>
+                <Text style={styles.timeText}>
+                  {moment(item.date).format("hh:mm")}
+                </Text>
               </View>
             </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
-      </SafeAreaView>
+          </View>
+        )}
+      />
 
       <KeyboardAvoidingView
-        behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS == "ios" ? "padding" : "height"}
       >
-        <View style={{ marginTop: 6, marginHorizontal: 16 }}>
+        <View
+          style={{
+            ...Platform.select({
+              ios: {
+                ...styles.inputContainer,
+                marginBottom: isShowKeyboard ? 120 : 0,
+              },
+            }),
+          }}
+        >
           <TextInput
+            onSubmitEditing={onReturn}
             value={comment}
             onChangeText={(value) => setComment(value)}
-            style={styles.comment}
-            placeholder="Комментировать"
+            style={styles.input}
+            onFocus={onFocusInput}
+            placeholder="Комментировать..."
             placeholderTextColor="#BDBDBD"
           />
 
-          <TouchableOpacity onPress={createComment} style={styles.btn}>
+          <TouchableOpacity onPress={addNewComment} style={styles.sendBtn}>
             <AntDesign name="arrowup" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 32,
   },
-  img: {
-    marginHorizontal: 16,
+  photo: {
+    width: Dimensions.get("window").width - 32,
     height: 240,
-    marginBottom: 8,
     borderRadius: 8,
+    marginBottom: 32,
+  },
+  commentsContainer: {
+    flex: 1,
+  },
+  commentContainer: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 24,
+  },
+  avatar: {
+    height: 28,
+    width: 28,
+    borderRadius: "50%",
+    marginRight: 16,
   },
   comment: {
-    position: 'relative',
+    width: 299,
+    backgroundColor: "rgba(0, 0, 0, 0.03)",
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 6,
+    borderBottomRightRadius: 6,
+    borderBottomLeftRadius: 6,
+    padding: 16,
+  },
+  commentText: {
+    color: "#212121",
+    fontFamily: "Roboto-Regular",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  dateAndTime: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  dateTextContainer: {
+    borderRightWidth: 1,
+    borderRightColor: "#BDBDBD",
+    paddingRight: 4,
+    marginRight: 4,
+  },
+  dateText: {
+    color: "#BDBDBD",
+    fontFamily: "Roboto-Regular",
+    fontSize: 10,
+    lineHeight: 12,
+  },
+  timeText: {
+    color: "#BDBDBD",
+    fontFamily: "Roboto-Regular",
+    fontSize: 10,
+    lineHeight: 12,
+  },
+  inputContainer: {
+    marginTop: 6,
+  },
+  input: {
+    position: "relative",
     height: 50,
-    width: Dimensions.get('window').width - 32,
+    width: Dimensions.get("window").width - 32,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E8E8E8',
+    borderColor: "#E8E8E8",
     borderRadius: 100,
-    backgroundColor: '#F6F6F6',
+    backgroundColor: "#F6F6F6",
   },
-  btn: {
-    position: 'absolute',
+  sendBtn: {
+    position: "absolute",
     top: 8,
     right: 8,
     height: 34,
     width: 34,
-    backgroundColor: '#FF6C00',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
+    borderRadius: "50%",
+    backgroundColor: "#FF6C00",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  list: {
-    marginBottom: 32,
-  },
-  boxComment: {
-    display: 'flex',
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    marginTop: 24,
-  },
-  avatar: {
-    marginRight: 16,
-    width: 28,
-    height: 28,
-    borderRadius: '50%',
-  },
-  boxText: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
-    width: 299,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 6,
-    borderBottomLeftRadius: 6,
-    borderBottomRightRadius: 6,
-  },
-  textComment: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: 13,
-    lineHeight: 18,
-    color: '#212121',
-  },
-})
+});
