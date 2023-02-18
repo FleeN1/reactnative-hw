@@ -17,6 +17,7 @@ import * as Location from "expo-location";
 import db from "../../firebase/config";
 import ToastManager, { Toast } from "toastify-react-native";
 
+
 export default function CreateScreen({ navigation }) {
   const [camera, setCamera] = useState(null);
   const [photo, setPhoto] = useState(null);
